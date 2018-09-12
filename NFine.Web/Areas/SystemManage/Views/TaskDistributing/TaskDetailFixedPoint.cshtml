@@ -1,0 +1,618 @@
+﻿@{
+    ViewBag.Title = "TaskDetailFixedPoint";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+
+    function btn_RowDeduinsDetail(taskEntryId) {
+        window.location = "/SystemManage/TaskDistributing/DeducInsDetailList?taskEntryId=" + taskEntryId;
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a id="NF-add" class="btn btn-primary dropdown-text" onclick="window.history.back()"><i class="glyphicon glyphicon-chevron-left"></i>返回</a>
+        </div>
+    </div>
+</div>
+<ul id="myTab" class="nav nav-tabs">
+    <li class="active">
+        <a href="#taskWastebasket" data-toggle="tab" id="tabWastebasket">
+            废纸箱
+        </a>
+    </li>
+    <li>
+        <a href="#taskStreetTrash" data-toggle="tab" id="tabStreetTrash">
+            沿街垃圾桶
+        </a>
+    </li>
+    <li>
+        <a href="#taskMachineCleanCar" data-toggle="tab" id="tabMachineCleanCar">
+            机扫车
+        </a>
+    </li>
+    <li>
+        <a href="#taskWashTheCar" data-toggle="tab" id="tabWashTheCar">
+            冲洗车
+        </a>
+    </li>
+    <li>
+        <a href="#taskGarbageTruckCar" data-toggle="tab" id="tabGarbageTruckCar">
+            垃圾清运车
+        </a>
+    </li>
+    <li>
+        <a href="#taskFlyingCar" data-toggle="tab" id="tabFlyingCar">
+            飞行保洁车
+        </a>
+    </li>
+    <li>
+        <a href="#taskEightLadleCar" data-toggle="tab" id="tabEightLadleCar">
+            四轮八桶车
+        </a>
+    </li>
+</ul>
+<div id="myTabContent" class="tab-content">
+    @*废纸箱*@
+    <div class="tab-pane fade in active" id="taskWastebasket">
+        <div class="gridPanel">
+            <table id="taskWastebasketgridList"></table>
+            <div id="taskWastebasketgridPager"></div>
+        </div>
+    </div>
+
+    @*沿街垃圾桶*@
+    <div class="tab-pane fade" id="taskStreetTrash">
+        <div class="gridPanel">
+            <table id="taskStreetTrashgridList"></table>
+            <div id="taskStreetTrashgridPager"></div>
+        </div>
+    </div>
+
+    @*机扫车*@
+    <div class="tab-pane fade" id="taskMachineCleanCar">
+        <div class="gridPanel">
+            <table id="taskMachineCleanCargridList"></table>
+            <div id="taskMachineCleanCargridPager"></div>
+        </div>
+    </div>
+
+    @*冲洗车*@
+    <div class="tab-pane fade" id="taskWashTheCar">
+        <div class="gridPanel">
+            <table id="taskWashTheCargridList"></table>
+            <div id="taskWashTheCargridPager"></div>
+        </div>
+    </div>
+
+    @*垃圾清运车*@
+    <div class="tab-pane fade" id="taskGarbageTruckCar">
+        <div class="gridPanel">
+            <table id="taskGarbageTruckCargridList"></table>
+            <div id="taskGarbageTruckCargridPager"></div>
+        </div>
+    </div>
+
+    @*飞行保洁车*@
+    <div class="tab-pane fade" id="taskFlyingCar">
+        <div class="gridPanel">
+            <table id="taskFlyingCargridList"></table>
+            <div id="taskFlyingCargridPager"></div>
+        </div>
+    </div>
+
+    @*四轮八桶车*@
+    <div class="tab-pane fade" id="taskEightLadleCar">
+        <div class="gridPanel">
+            <table id="taskEightLadleCargridList"></table>
+            <div id="taskEightLadleCargridPager"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    var keyValue = $.request("keyValue");
+
+    var TaskEntryDatas = [
+        { id: 'taskWastebasket', isLoad: false, code: 8 },
+        { id: 'taskStreetTrash', isLoad: false, code: 9 },
+        { id: 'taskMachineCleanCar', isLoad: false, code: 10 },
+        { id: 'taskWashTheCar', isLoad: false, code: 11 },
+        { id: 'taskGarbageTruckCar', isLoad: false, code: 12 },
+        { id: 'taskFlyingCar', isLoad: false, code: 13 },
+        { id: 'taskEightLadleCar', isLoad: false, code: 14 },
+    ];
+
+    $(function () {
+        $('#myTab a').click(function (e) {
+            e.preventDefault()
+            $(this).tab('show');
+
+
+            //加载对应
+
+            var tabName = e.target.id;
+
+            selectTabNode = tabName;
+            debugger;
+            switch (tabName) {
+                case "tabWastebasket":
+                    LoadWastebasketgridList();
+                    break;
+                case "tabStreetTrash":
+                    LoadStreetTrashgrudList();
+                    break;
+                case "tabMachineCleanCar":
+                    LoadtaskMachineCleanCarGridList();
+                    break;
+                case "tabWashTheCar":
+                    LoadtaskWashTheCarGridList();
+                    break;
+                case "tabGarbageTruckCar":
+                    LoadtaskGarbageTruckCarGridList();
+                    break;
+                case "tabFlyingCar":
+                    LoadtaskFlyingCarGridList();
+                    break;
+                case "tabEightLadleCar":
+                    LoadtakEightLadleCarGridList();
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        LoadWastebasketgridList();
+    });
+
+    function GetTaskEntryData(id) {
+
+        var result = null;
+        for (var i = 0; i < TaskEntryDatas.length; i++) {
+            if (TaskEntryDatas[i].id == id) {
+                result = TaskEntryDatas[i];
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    function GetTaskEntryState(id, isLoad) {
+        for (var i = 0; i < TaskEntryDatas.length; i++) {
+            if (TaskEntryDatas[i].id == id) {
+                TaskEntryDatas[i] = isLoad;
+                break;
+            }
+        }
+    }
+
+    function LoadWastebasketgridList() {
+        var taskEntryData = GetTaskEntryData('taskWastebasket');
+
+        if (taskEntryData.isLoad)//加载过不在进行加载？
+            return;
+
+        var $gridList = $("#taskWastebasketgridList");
+        $gridList.dataGrid({
+            url: "/SystemManage/TaskDistributing/GetTaskDetail",
+            height: $(window).height() - 160,
+            postData: { keyValue: keyValue, type: taskEntryData.code },
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                { label: '关联基础数据主键', name: 'DataId', hidden: true },
+                {
+                    label: '抽样单名称', name: 'OrdeNo', width: 100, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成";
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                {
+                    label: '街道名称', name: 'StreetName', width: 80, align: 'left', sortable: false
+                },
+                {
+                    label: '地址', name: 'Address', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        
+                        return cellvalue == null ? "<font color='red'>暂未上传</font>" : cellvalue;
+                    }
+                },
+                {
+                    label: '完成状态', name: 'CompleteState', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue ? "存在扣分记录" : "不存在扣分记录";
+                    }
+                },
+                {
+                    label: '任务单派发时间', name: 'DeliveryTime', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成"
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                { label: '任务单需完成时间', name: 'CompletionTime', width: 150, align: 'left', sortable: false },
+                { label: '责任人员', name: 'PersonInChargeName', width: 80, align: 'left', sortable: false },
+                {
+                    label: '操作', name: 'F_Id', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return " <a id=\"NF-add\" class=\"btn btn-primary dropdown-text\" onclick=\"btn_RowDeduinsDetail('" + cellvalue + "')\"><i class=\"glyphicon glyphicon-zoom-in\"></i>详情</a>";
+                    },
+                }
+            ],
+            pager: "#taskWastebasketgridPager",
+            viewrecords: true
+        });
+
+        taskEntryData.isLoad = true;
+    }
+    function LoadStreetTrashgrudList()
+    {
+        var taskEntryData = GetTaskEntryData('taskStreetTrash');
+
+        if (taskEntryData.isLoad)//加载过不在进行加载？
+            return;
+
+        var $gridList = $("#taskStreetTrashgridList");
+        $gridList.dataGrid({
+            url: "/SystemManage/TaskDistributing/GetTaskDetail",
+            height: $(window).height() - 160,
+            postData: { keyValue: keyValue, type: taskEntryData.code },
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                { label: '关联基础数据主键', name: 'DataId', hidden: true },
+                {
+                    label: '抽样单名称', name: 'OrdeNo', width: 100, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成";
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                {
+                    label: '街道名称', name: 'StreetName', width: 80, align: 'left', sortable: false
+                },
+                {
+                    label: '地址', name: 'Address', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+
+                        return cellvalue == null ? "<font color='red'>暂未上传</font>" : cellvalue;
+                    }
+                },
+                {
+                    label: '完成状态', name: 'CompleteState', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue ? "存在扣分记录" : "不存在扣分记录";
+                    }
+                },
+                {
+                    label: '任务单派发时间', name: 'DeliveryTime', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成"
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                { label: '任务单需完成时间', name: 'CompletionTime', width: 150, align: 'left', sortable: false },
+                { label: '责任人员', name: 'PersonInChargeName', width: 80, align: 'left', sortable: false },
+                {
+                    label: '操作', name: 'F_Id', width: 100, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return " <a id=\"NF-add\" class=\"btn btn-primary dropdown-text\" onclick=\"btn_RowDeduinsDetail('" + cellvalue + "')\"><i class=\"glyphicon glyphicon-zoom-in\"></i>详情</a>";
+                    },
+                }
+            ],
+            pager: "#taskStreetTrashgridPager",
+            viewrecords: true
+        });
+
+        taskEntryData.isLoad = true;
+    }
+    function LoadtaskMachineCleanCarGridList()
+    {
+        var taskEntryData = GetTaskEntryData('taskMachineCleanCar');
+
+        if (taskEntryData.isLoad)//加载过不在进行加载？
+            return;
+
+        var $gridList = $("#taskMachineCleanCargridList");
+        $gridList.dataGrid({
+            url: "/SystemManage/TaskDistributing/GetTaskDetail",
+            height: $(window).height() - 160,
+            postData: { keyValue: keyValue, type: taskEntryData.code },
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                { label: '关联基础数据主键', name: 'DataId', hidden: true },
+                {
+                    label: '抽样单名称', name: 'OrdeNo', width: 100, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成";
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                {
+                    label: '街道名称', name: 'StreetName', width: 80, align: 'left', sortable: false
+                },
+                {
+                    label: '车牌号', name: 'CarId', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue == null ? "<font color='red'>暂未上传</font>" : cellvalue;
+                    }
+                },
+                {
+                    label: '完成状态', name: 'CompleteState', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue ? "存在扣分记录" : "不存在扣分记录";
+                    }
+                },
+                {
+                    label: '任务单派发时间', name: 'DeliveryTime', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成"
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                { label: '任务单需完成时间', name: 'CompletionTime', width: 150, align: 'left', sortable: false },
+                { label: '责任人员', name: 'PersonInChargeName', width: 80, align: 'left', sortable: false },
+                {
+                    label: '操作', name: 'F_Id', width: 100, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return " <a id=\"NF-add\" class=\"btn btn-primary dropdown-text\" onclick=\"btn_RowDeduinsDetail('" + cellvalue + "')\"><i class=\"glyphicon glyphicon-zoom-in\"></i>详情</a>";
+                    },
+                }
+            ],
+            pager: "#taskMachineCleanCargridPager",
+            viewrecords: true
+        });
+
+        taskEntryData.isLoad = true;
+    }
+    function LoadtaskWashTheCarGridList() {
+        var taskEntryData = GetTaskEntryData('taskWashTheCar');
+
+        if (taskEntryData.isLoad)//加载过不在进行加载？
+            return;
+
+        var $gridList = $("#taskWashTheCargridList");
+        $gridList.dataGrid({
+            url: "/SystemManage/TaskDistributing/GetTaskDetail",
+            height: $(window).height() - 160,
+            postData: { keyValue: keyValue, type: taskEntryData.code },
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                { label: '关联基础数据主键', name: 'DataId', hidden: true },
+                {
+                    label: '抽样单名称', name: 'OrdeNo', width: 100, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成";
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                {
+                    label: '街道名称', name: 'StreetName', width: 80, align: 'left', sortable: false
+                },
+                {
+                    label: '车牌号', name: 'CarId', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue == null ? "<font color='red'>暂未上传</font>" : cellvalue;
+                    }
+                },
+                {
+                    label: '完成状态', name: 'CompleteState', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue ? "存在扣分记录" : "不存在扣分记录";
+                    }
+                },
+                {
+                    label: '任务单派发时间', name: 'DeliveryTime', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成"
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                { label: '任务单需完成时间', name: 'CompletionTime', width: 150, align: 'left', sortable: false },
+                { label: '责任人员', name: 'PersonInChargeName', width: 80, align: 'left', sortable: false },
+                {
+                    label: '操作', name: 'F_Id', width: 100, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return " <a id=\"NF-add\" class=\"btn btn-primary dropdown-text\" onclick=\"btn_RowDeduinsDetail('" + cellvalue + "')\"><i class=\"glyphicon glyphicon-zoom-in\"></i>详情</a>";
+                    },
+                }
+            ],
+            pager: "#taskWashTheCargridPager",
+            viewrecords: true
+        });
+
+        taskEntryData.isLoad = true;
+    }
+    function LoadtaskGarbageTruckCarGridList() {
+        var taskEntryData = GetTaskEntryData('taskGarbageTruckCar');
+
+        if (taskEntryData.isLoad)//加载过不在进行加载？
+            return;
+
+        var $gridList = $("#taskGarbageTruckCargridList");
+        $gridList.dataGrid({
+            url: "/SystemManage/TaskDistributing/GetTaskDetail",
+            height: $(window).height() - 160,
+            postData: { keyValue: keyValue, type: taskEntryData.code },
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                { label: '关联基础数据主键', name: 'DataId', hidden: true },
+                {
+                    label: '抽样单名称', name: 'OrdeNo', width: 100, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成";
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                {
+                    label: '街道名称', name: 'StreetName', width: 80, align: 'left', sortable: false
+                },
+                {
+                    label: '车牌号', name: 'CarId', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue == null ? "<font color='red'>暂未上传</font>" : cellvalue;
+                    }
+                },
+                {
+                    label: '完成状态', name: 'CompleteState', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue ? "存在扣分记录" : "不存在扣分记录";
+                    }
+                },
+                {
+                    label: '任务单派发时间', name: 'DeliveryTime', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成"
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                { label: '任务单需完成时间', name: 'CompletionTime', width: 150, align: 'left', sortable: false },
+                { label: '责任人员', name: 'PersonInChargeName', width: 80, align: 'left', sortable: false },
+                {
+                    label: '操作', name: 'F_Id', width: 100, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return " <a id=\"NF-add\" class=\"btn btn-primary dropdown-text\" onclick=\"btn_RowDeduinsDetail('" + cellvalue + "')\"><i class=\"glyphicon glyphicon-zoom-in\"></i>详情</a>";
+                    },
+                }
+            ],
+            pager: "#taskGarbageTruckCargridPager",
+            viewrecords: true
+        });
+
+        taskEntryData.isLoad = true;
+    }
+    function LoadtaskFlyingCarGridList() {
+        var taskEntryData = GetTaskEntryData('taskFlyingCar');
+
+        if (taskEntryData.isLoad)//加载过不在进行加载？
+            return;
+
+        var $gridList = $("#taskFlyingCargridList");
+        $gridList.dataGrid({
+            url: "/SystemManage/TaskDistributing/GetTaskDetail",
+            height: $(window).height() - 160,
+            postData: { keyValue: keyValue, type: taskEntryData.code },
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                { label: '关联基础数据主键', name: 'DataId', hidden: true },
+                {
+                    label: '抽样单名称', name: 'OrdeNo', width: 100, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成";
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                {
+                    label: '街道名称', name: 'StreetName', width: 80, align: 'left', sortable: false
+                },
+                {
+                    label: '车牌号', name: 'CarId', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue == null ? "<font color='red'>暂未上传</font>" : cellvalue;
+                    }
+                },
+                {
+                    label: '完成状态', name: 'CompleteState', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue ? "存在扣分记录" : "不存在扣分记录";
+                    }
+                },
+                {
+                    label: '任务单派发时间', name: 'DeliveryTime', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成"
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                { label: '任务单需完成时间', name: 'CompletionTime', width: 150, align: 'left', sortable: false },
+                { label: '责任人员', name: 'PersonInChargeName', width: 80, align: 'left', sortable: false },
+                {
+                    label: '操作', name: 'F_Id', width: 100, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return " <a id=\"NF-add\" class=\"btn btn-primary dropdown-text\" onclick=\"btn_RowDeduinsDetail('" + cellvalue + "')\"><i class=\"glyphicon glyphicon-zoom-in\"></i>详情</a>";
+                    },
+                }
+            ],
+            pager: "#taskFlyingCargridPager",
+            viewrecords: true
+        });
+
+        taskEntryData.isLoad = true;
+    }
+    function LoadtakEightLadleCarGridList() {
+        var taskEntryData = GetTaskEntryData('taskEightLadleCar');
+
+        if (taskEntryData.isLoad)//加载过不在进行加载？
+            return;
+
+        var $gridList = $("#taskEightLadleCargridList");
+        $gridList.dataGrid({
+            url: "/SystemManage/TaskDistributing/GetTaskDetail",
+            height: $(window).height() - 160,
+            postData: { keyValue: keyValue, type: taskEntryData.code },
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                { label: '关联基础数据主键', name: 'DataId', hidden: true },
+                {
+                    label: '抽样单名称', name: 'OrdeNo', width: 100, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成";
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                {
+                    label: '街道名称', name: 'StreetName', width: 80, align: 'left', sortable: false
+                },
+                {
+                    label: '车牌号', name: 'CarId', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        debugger;
+                        return cellvalue == null ? "<font color='red'>暂未上传</font>" : cellvalue;
+                    }
+                },
+                {
+                    label: '完成状态', name: 'CompleteState', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue ? "存在扣分记录" : "不存在扣分记录";
+                    }
+                },
+                {
+                    label: '任务单派发时间', name: 'DeliveryTime', width: 150, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "暂未生成"
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                { label: '任务单需完成时间', name: 'CompletionTime', width: 150, align: 'left', sortable: false },
+                { label: '责任人员', name: 'PersonInChargeName', width: 80, align: 'left', sortable: false },
+                {
+                    label: '操作', name: 'F_Id', width: 100, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return " <a id=\"NF-add\" class=\"btn btn-primary dropdown-text\" onclick=\"btn_RowDeduinsDetail('" + cellvalue + "')\"><i class=\"glyphicon glyphicon-zoom-in\"></i>详情</a>";
+                    },
+                }
+            ],
+            pager: "#taskEightLadleCargridPager",
+            viewrecords: true
+        });
+
+        taskEntryData.isLoad = true;
+    }
+</script>
+

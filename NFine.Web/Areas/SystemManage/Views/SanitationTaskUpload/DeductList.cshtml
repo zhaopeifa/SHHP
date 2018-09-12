@@ -1,0 +1,135 @@
+﻿@{
+    ViewBag.Title = "DeductList";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    var taskEntryId = $.request("taskEntryId");
+
+
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/SystemManage/SanitationTaskUpload/GetGridDedutJson",
+            postData: { taskEntryId: taskEntryId },
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '主键', name: 'DeducIns_Id', hidden: true },
+                { label: '大类名称', name: 'SCEntryName', width: 80, align: 'left', sortable: false },
+                { label: '中类名称', name: 'SCTypeName', width: 80, align: 'left', sortable: false },
+                { label: '小类名称', name: 'SCClassifyName', width: 80, align: 'left', sortable: false },
+               {
+                   label: '类型', name: 'SCNormIsDeduct', width: 60, align: 'left', sortable: false,
+                   formatter: function (cellvalue, options, rowObject) {
+                       return cellvalue ? "<span class=\"label label-default\">减分项</span>" : "<span class=\"label label-success\">加分项</span>";
+                   }
+               },
+                { label: '检查项目', name: 'SCNormProjectName', width: 150, align: 'left', sortable: false },
+                { label: '评分标准', name: 'SCNormStandardName', width: 150, align: 'left', sortable: false },
+                {
+                    label: '几处', name: 'DeductionSeveral', width: 80, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue + "处";
+                    }
+                },
+                {
+                    label: '分值', name: 'DeductionScore', width: 80, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue + "分";
+                    }
+                },
+                { label: '评分人员', name: 'CreatorUserName', width: 80, align: 'left', sortable: false }
+            ],
+            pager: "#gridPager",
+            sortname: 'CreateTime desc',
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_keyword").val(), taskEntryId: taskEntryId },
+            }).trigger('reloadGrid');
+        });
+    }
+    function btn_add() {
+        $.modalOpen({
+            id: "DeductForm",
+            title: "新增扣分记录",
+            url: "/SystemManage/SanitationTaskUpload/DeductForm?taskEntryId=" + taskEntryId,
+            width: "800px",
+            height: "750px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+
+        var keyValue = $("#gridList").jqGridRowValue().DeducIns_Id;
+        if (keyValue == null) {
+            $.modalMsg("请选中要操作的行!", "warning");
+            return;
+        }
+
+        $.modalOpen({
+            id: "DeductForm",
+            title: "修改任务",
+            url: "/SystemManage/SanitationTaskUpload/DeductUpdateForm?taskEntryId=" + taskEntryId + "&keyValue=" + keyValue,
+            width: "800px",
+            height: "750px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_delete() {
+        var keyValue = $("#gridList").jqGridRowValue().DeducIns_Id
+        if (keyValue == null) {
+            $.modalMsg("请选中要操作的行!", "warning");
+            return;
+        }
+        $.deleteForm({
+            url: "/SystemManage/SanitationTaskUpload/DeleteForm",
+            param: { keyValue: keyValue },
+            success: function () {
+                $("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="window.history.back()"><span class="glyphicon glyphicon-chevron-left"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建扣分记录</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-edit" class="btn btn-primary dropdown-text" onclick="btn_edit()"><i class="glyphicon glyphicon-edit"></i>修改扣分记录</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-delete" class="btn btn-primary dropdown-text" onclick="btn_delete()"><i class="glyphicon glyphicon-remove"></i>删除扣分记录</a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="txt_keyword" type="text" class="form-control" placeholder="大类/中类/小类/检查项目/评分标准" style="width: 200px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

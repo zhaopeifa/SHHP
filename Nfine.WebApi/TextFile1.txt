@@ -1,0 +1,53 @@
+﻿		
+
+        /// <summary>
+        /// 任务Id
+        /// </summary>
+        public string TaskEntry_Id { get; set; }
+
+        /// <summary>
+        /// 扣分明细Id
+        /// </summary>
+        public string SCNorm_Id { get; set; }
+
+        public string SCEntryName { get; set; }
+
+        public string SCTypeName { get; set; }
+
+        public string SCClassifyName { get; set; }
+
+        public string SCNormProjectName { get; set; }
+
+        public string SCNormStandardName { get; set; }
+
+        /// <summary>
+        /// 扣几处
+        /// </summary>
+        public int DeductionSeveral { get; set; }
+
+        /// <summary>
+        /// 扣几分
+        /// </summary>
+        public int DeductionScore { get; set; }
+
+        /// <summary>
+        /// 扣分描述
+        /// </summary>
+        public string DeductionDescribe { get; set; }
+
+        public string CreatorUserId { get; set; }
+
+        public string CreatorUserName { get; set; }
+
+		TaskEntry_Id:任务Id 检查项Id 如A道路的Id
+		SCNorm_Id:扣分明细Id 如A扣分项
+		SCEntryName:扣分项大类名称
+		SCTypeName:扣分项中类名称
+		SCClassifyName：扣分项小类名称
+		SCNormProjectName：扣分项检查项目名称
+		SCNormStandardName:扣分项 扣分明细名称
+		DeductionSeveral 扣几处
+		DeductionScore 扣几分
+		DeductionDescribe 描述
+		CreatorUserId 上传用户Id
+		CreatorUserName 上传用户名称

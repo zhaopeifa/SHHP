@@ -1,0 +1,131 @@
+﻿@{
+    ViewBag.Title = "DeducInsDetail";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script>
+    var DeducIns_Id = $.request("DeducIns_Id");
+
+    $(function () {
+        
+
+        if (!!DeducIns_Id) {
+            $.ajax({
+                url: "/SystemManage/SanitationTaskUpload/GetFormJsonByKeyValue",
+                data: { keyValue: DeducIns_Id },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                }
+            });
+
+
+            $.ajax({
+                url: "/SystemManage/SanitationTaskUpload/GetImgFormJsonKeyValue",
+                data: { keyValue: DeducIns_Id },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    
+                    for (var i = 0; i < data.length; i++) {
+                        
+                        var $tr = "<li><div class=\"listimg\"><img  onclick='showImage(this)' width='260px' height='165px' src='" + data[i].Value + "'></></div><div class=\"listinfo\"><div class=\"listdate\"></div></div></li>";
+                        $("#content").append($tr);
+
+                    }
+                }
+            });
+        }
+    });
+    function showImage(image) {
+        var imagePath = image.src;
+        var img = "<img src='" + imagePath + "' />";
+        
+
+        $.Getlayer().open({
+            type: 1,
+            title: false, //不显示标题
+            shadeClose: true,
+            area: [$(img)[0].width + 'px', $(img)[0].height + 'px'],
+            content: img
+        });
+    }
+</script>
+
+
+
+<form id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">评分标准大类</th>
+                <td class="formValue">
+                    <input id="SEntryName" name="SEntryName" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">评分标准中类</th>
+                <td class="formValue">
+                    <input id="STypeName" name="STypeName" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">评分标准小类</th>
+                <td class="formValue">
+                    <input id="SClassifyName" name="SClassifyName" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">检查项目</th>
+                <td class="formValue">
+                    <input id="SNormProjectName" name="SNormProjectName" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">评分标准</th>
+                <td class="formValue">
+                    <input id="SNormStandardName" name="SNormStandardName" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">起扣条件</th>
+                <td class="formValue">
+                    <input id="SNormCondition" name="SNormCondition" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <hr />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">几处</th>
+                <td class="formValue">
+                    <input id="DeductionSeveral" name="DeductionSeveral" disabled="disabled" type="text" class="form-control required number" placeholder="请输入几处" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">几分</th>
+                <td class="formValue">
+                    <input id="DeductionScore" name="DeductionScore" disabled="disabled" type="text" class="form-control required number" placeholder="请输入几分" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">描述</th>
+                <td class="formValue">
+                    <textarea id="DeductionDescribe" name="DeductionDescribe" disabled="disabled" class="form-control" placeholder="请输入描述"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">图片</th>
+                <td class="formValue">
+                    <div class="container">
+                        <ul id="content"></ul>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

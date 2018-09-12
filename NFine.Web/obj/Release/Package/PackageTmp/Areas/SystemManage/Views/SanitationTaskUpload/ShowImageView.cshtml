@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Title = "ShowImageView";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script type="text/javascript">
+    //ShowImageView
+    var imagePath = $.request("imagePath");
+
+    $(function () {
+        $("#img").attr("src", imagePath);
+    });
+</script>
+<style>
+    img {
+        
+        max-width: 100%;
+    }
+</style>
+<img id="img" src='' /> >

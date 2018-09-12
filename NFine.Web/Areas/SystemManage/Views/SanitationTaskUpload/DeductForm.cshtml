@@ -1,0 +1,244 @@
+﻿@{
+    ViewBag.Title = "DeductForm";
+    Layout = "~/Views/Shared/_All.cshtml";
+}
+
+
+<script src="~/Content/js/uploadify/jquery.uploadify.min.js"></script>
+<link href="~/Content/js/uploadify/uploadify.css" rel="stylesheet" />
+<link href="~/Content/js/jquery-ui/jquery-ui.min.css" rel="stylesheet" />
+<script src="~/Content/js/jquery-ui/jquery-ui.min.js"></script>
+
+<script type="text/javascript">
+    var taskEntryId = $.request("taskEntryId");
+
+    //选择对应评分标准
+    function bnt_chooseSC() {
+        $.modalOpen({
+            id: "FormchooseSC",
+            title: "新增扣分记录",
+            url: "/SystemManage/SanitationTaskUpload/UpLoadTaskEntrFormy?taskEntryId=" + taskEntryId,
+            width: "800px",
+            height: "810px",
+            callBack: function (iframeId) {
+                var normId = top.frames[iframeId].GetSelectSCNorm();
+
+                $("#NormId").val(normId);
+
+
+                $.ajax({
+                    url: "/SystemManage/SanitationTaskUpload/GetScireCriteriaJson",
+                    data: { normId: normId },
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        debugger;
+                        $("#SEntryName").val(data.SEntryName);
+                        $("#STypeName").val(data.STypeName);
+                        $("#SClassifyName").val(data.SClassifyName);
+                        $("#SNormProjectName").val(data.SNormProjectName);
+                        $("#SNormStandardName").val(data.SNormStandardName);
+                        $("#SNormCondition").val(data.SNormCondition);
+                        $("#SNormIsDeduct").attr("checked", data.SNormIsDeduct);
+                        $("#SNormIsDeduct").attr("checked", data.SNormIsDeduct);
+                    }
+                });
+            }
+        });
+    }
+</script>
+
+<script type="text/javascript">
+
+    var taskEntryId = $.request("taskEntryId");
+    var normId = $.request("normId");
+    var DeducIns_Id = $.request("keyValue");
+    var isok = false;
+
+    $(function () {
+        $("#TaskEntryId").val(taskEntryId);
+        $("#NormId").val(normId);
+
+
+        //获取Guid
+        $.ajax({
+            url: "/SystemManage/SanitationTaskUpload/GetGuidId",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+
+                $("#F_Id").val(data.id);
+            }
+        });
+        if (!!DeducIns_Id) {
+            $.ajax({
+                url: "/SystemManage/SanitationTaskUpload/GetFormJsonByKeyValue",
+                data: { keyValue: DeducIns_Id },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+
+    });
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+
+        $('#file_upload').uploadify('upload', '*');
+
+        $.submitForm({
+            url: "/SystemManage/SanitationTaskUpload/SubmitForm?keyValue=" + $("#F_Id").val() + "&DeducIns_Id=" + DeducIns_Id,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    $(function () {
+        var img_id_upload = new Array();
+        var i = 0;
+
+        $("#file_upload").uploadify({
+            'buttonText': '上传图片文件',
+            'auto': false,
+            'swf': 'http://localhost:1851/Content/js/uploadify/uploadify.swf',
+            'uploader': 'http://localhost:1851/SystemManage/SanitationTaskUpload/Upload?deducInsId=' + $("#F_Id").val(),
+            'queueID': 'some_file_queue',
+            'cancelImg': 'http://localhost:1851/Content/js/uploadify/uploadify-cancel.png',
+            'uploadLimit': 999,
+            'fileTypeExts': '*.png;*.jpg;',
+            'fileTypeDesc': 'png文件(*.png)',
+            'onCancel': function (file) {
+            },
+            'onSelect': function (file) {
+                //this.addPostParam("file_name", file.name);
+                //this.addPostParam("file_name", encodeURI(file.name)); //改变文件名的编码
+                //this.addPostParam("file_name", encodeURIComponent(escape(file.name))); //改变文件名的编码
+            },
+            'onUploadSuccess': function (file, data, response) {
+                img_id_upload[i] = data;
+                i++;
+            },
+            'onQueueComplete': function (data) {
+                if (img_id_upload.length > 0) {
+                    isok = true;
+                }
+            }
+        });
+
+        $("#unshangchuan").click(function () {    //取消全部按钮
+            $('#file_upload').uploadify('cancel', '*')
+
+        })
+        $("#shangchuan").click(function () {    //取消全部按钮
+            $('#file_upload').uploadify('upload', '*');
+        })
+
+    });
+</script>
+
+<form id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr hidden="hidden">
+                <td>
+                    <input id="TaskEntryId" name="TaskEntryId" />
+                    <input id="NormId" name="NormId" />
+                    <input id="F_Id" name="F_Id" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">选择扣分标准</th>
+                <td class="formValue">
+                    <button type="button" onclick="bnt_chooseSC()">选择..</button>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">评分标准大类</th>
+                <td class="formValue">
+                    <input id="SEntryName" name="SEntryName" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">评分标准中类</th>
+                <td class="formValue">
+                    <input id="STypeName" name="STypeName" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">评分标准小类</th>
+                <td class="formValue">
+                    <input id="SClassifyName" name="SClassifyName" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" style="height: 35px;">选项</th>
+                <td class="formValue">
+                    <div class="ckbox">
+                        <input id="SNormIsDeduct" name="SNormIsDeduct" type="checkbox" disabled="disabled"><label for="IsDeduct">是否扣分项</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">检查项目</th>
+                <td class="formValue">
+                    <input id="SNormProjectName" name="SNormProjectName" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">评分标准</th>
+                <td class="formValue">
+                    <input id="SNormStandardName" name="SNormStandardName" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">起扣条件</th>
+                <td class="formValue">
+                    <input id="SNormCondition" name="SNormCondition" disabled="disabled" type="text" class="form-control required number" placeholder="未绑定" />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <hr />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">几处</th>
+                <td class="formValue">
+                    <input id="DeductionSeveral" name="DeductionSeveral" type="text" class="form-control required number" placeholder="请输入几处" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">几分</th>
+                <td class="formValue">
+                    <input id="DeductionScore" name="DeductionScore" type="text" class="form-control required number" placeholder="请输入几分" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">描述</th>
+                <td class="formValue">
+                    <textarea id="DeductionDescribe" style="width:600px" class="form-control" name="DeductionDescribe" placeholder="请输入描述"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">图片</th>
+                <td class="formValue">
+                    <div id="some_file_queue">
+                    </div>
+                    <input id="file_upload" name="file_upload" type="file" multiple="true">
+                    <input id="unshangchuan" type="button" name="Submit2" value="取消上传" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<script>
+
+
+</script>

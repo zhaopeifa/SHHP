@@ -1,0 +1,87 @@
+﻿@{
+    ViewBag.Title = "FormPerfectFixedPoint";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script type="text/javascript">
+    var taskEntryId = $.request("taskEntryId");
+    var entryType = $.request("entryType");
+    debugger;
+   
+    
+
+    $(function () {
+        $("#TaskEntryId").val(taskEntryId);
+        $("#EntryType").val(entryType);
+
+
+        switch (entryType) {
+            case "8":
+            case "9":
+                $("#CarIdTr").hide();
+                break;
+            case "10":
+            case "11":
+            case "12":
+            case "13":
+            case "14":
+                $("#AddrssTr").hide();
+                break;
+            default:
+                break;
+        }
+
+        if (!!taskEntryId) {
+            $.ajax({
+                url: "/SystemManage/SanitationTaskUpload/GetTaskEntryFormJson",
+                data: { taskEntryId: taskEntryId },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data != null)
+                    {
+                        $("#Address").val(data.BYMESS2);
+                    }
+                }
+            });
+        }
+    });
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+
+        $.submitForm({
+            url: "/SystemManage/SanitationTaskUpload/SumitPerfectFixedPoint?taskEntryId=" + taskEntryId,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().RefreshGridLisy();
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr hidden="hidden">
+                <td>
+                    <input id="TaskEntryId" name="CityId" />
+                    <input id="EntryType" name="CountyId" />
+                </td>
+            </tr>
+            <tr id="AddrssTr">
+                <th class="formTitle">地址</th>
+                <td class="formValue">
+                    <input id="Address" name="Address" type="text" class="form-control" placeholder="请输地址" />
+                </td>
+            </tr>
+            <tr id="CarIdTr">
+                <th class="formTitle">车牌号</th>
+                <td class="formValue">
+                    <input id="CartId" name="CartId" type="text" class="form-control" placeholder="请输车牌号" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

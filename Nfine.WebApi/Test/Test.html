@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+</head>
+<body>
+
+</body>
+</html>
+<script src="jquery-2.1.1.min.js"></script>
+<script type="text/javascript">
+
+    var ApiDeductUploadContracts = {
+        TaskEntry_Id:'2141466c-b73b-4587-8a98-1750f68a17af',
+        SCNorm_Id: 'b96edab5-4f74-47be-8a96-d32501db4f47',
+        SCEntryName: '道路',
+        SCTypeName: '一级道路',
+        SCClassifyName: '人行道',
+        SCNormProjectName: '人行道保洁作业质量达标',
+        SCNormStandardName: '人行道及路面有暴露垃圾3㎡以下扣3分； 3㎡以上扣5分； 人行道内有零星垃圾、污水等呈块状、条状分布，每处扣2分',
+        DeductionSeveral: 1,
+        DeductionScore: 2,
+        CreatorUserId: 'e5cdf142-6df6-4172-ac71-f06dcc6ab6f8',
+        CreatorUserName:'',
+        DeductionDescribe: 'asdasd',
+        images:['adsadasdasdasdasdasdasd','11111111']
+    };
+
+    var updateImage =
+        {
+            base64ImageCode: "111",
+            DeductId:"-1"
+        };
+
+    var Url = "http://localhost:25298/api/Task/CompletedTask?userid=e5cdf142-6df6-4172-ac71-f06dcc6ab6f8&entryId=fa4a23a1-89f9-496a-829e-8dec59a87f8d&typeId=650d0e3c-dbd0-42eb-b219-f10de8c48d46";
+    var Url1 = "http://localhost:25298/api/Task/?userid=e5cdf142-6df6-4172-ac71-f06dcc6ab6f8&entryId=fa4a23a1-89f9-496a-829e-8dec59a87f8d&typeId=650d0e3c-dbd0-42eb-b219-f10de8c48d46";
+
+    $(function () {
+        $.ajax({
+            url: Url,
+            type: "GET",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                debugger;
+            },
+            error: function (error) {
+                debugger;
+            }
+        });
+
+        $.ajax({
+            url: Url1,
+            type: "GET",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                debugger;
+            },
+            error: function (error) {
+                debugger;
+            }
+        });
+    });
+</script>
